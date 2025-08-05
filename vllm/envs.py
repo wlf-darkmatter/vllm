@@ -127,6 +127,7 @@ if TYPE_CHECKING:
     VLLM_TOOL_PARSE_REGEX_TIMEOUT_SECONDS: int = 1
     VLLM_SLEEP_WHEN_IDLE: bool = False
     VLLM_MQ_MAX_CHUNK_BYTES_MB: int = 16
+    VLLM_USE_FAV2: bool = True
 
 
 def get_default_cache_root():
@@ -870,6 +871,10 @@ environment_variables: dict[str, Callable[[], Any]] = {
     # processes via zmq.
     "VLLM_MQ_MAX_CHUNK_BYTES_MB":
     lambda: int(os.getenv("VLLM_MQ_MAX_CHUNK_BYTES_MB", "16")),
+
+    # If set, use the FAV2 ops.
+    "VLLM_USE_FAV2":
+    lambda: bool(int(os.getenv("VLLM_USE_FAV2", "1"))),
 }
 
 # --8<-- [end:env-vars-definition]
@@ -901,6 +906,13 @@ def set_vllm_use_v1(use_v1: bool):
             "Issue and explicitly set VLLM_USE_V1=0 or 1.")
     os.environ["VLLM_USE_V1"] = "1" if use_v1 else "0"
 
+def set_vllm_use_fav2(use_fav2: bool):
+    if is_set("VLLM_USE_FAV2"):
+        raise ValueError(
+            "Should not call set_vllm_use_fav2() if VLLM_USE_FAV2 is set "
+            "explicitly by the user. Please raise this as a Github "
+            "Issue and explicitly set VLLM_USE_FAV2=0 or 1.")
+    os.environ["VLLM_USE_FAV2"] = "1" if use_fav2 else "0"
 
 def compute_hash() -> str:
     """
